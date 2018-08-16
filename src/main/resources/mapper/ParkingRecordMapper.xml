@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.parkinglot.admin.dao.IParkingRecordDao">
+
+	<resultMap id="BaseResultMap"
+		type="com.parkinglot.admin.entity.ParkingRecordEntity">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<!-- <result column="phone" property="phone" jdbcType="VARCHAR" /> -->
+		<result column="parking_id" property="parkingId" jdbcType="INTEGER" />
+		<result column="card_id" property="cardId" jdbcType="VARCHAR" />
+		<result column="checkin_time" property="checkinTime" jdbcType="TIMESTAMP" />
+		<result column="checkout_time" property="checkoutTime"
+			jdbcType="TIMESTAMP" />
+		<result column="phone" property="phone" jdbcType="VARCHAR" />
+		<result column="flag" property="flag" jdbcType="INTEGER" />
+	</resultMap>
+
+
+	<!-- 取车 -->
+	<update id="updateParkingRecord" parameterType="com.parkinglot.admin.entity.ParkingRecordEntity">
+		UPDATE
+		parking_record SET
+		checkout_time=#{checkoutTime,jdbcType=TIMESTAMP},flag=#{flag,jdbcType=INTEGER}
+		WHERE
+		card_id=#{cardId,jdbcType=INTEGER}
+		AND
+		flag=1
+	</update>
+
+	<!--停车 -->
+	<insert id="insertParkingRecord" parameterType="com.parkinglot.admin.entity.ParkingRecordEntity">
+		insert into
+		parking_record (parking_id,card_id,checkin_time,flag,phone)
+		values(
+		#{parkingId,jdbcType=INTEGER},
+		#{cardId,jdbcType=INTEGER},
+		#{checkinTime,jdbcType=TIMESTAMP},
+		#{flag,jdbcType=INTEGER},
+		#{phone,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<select id="selectParkingRecord" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select * from parking_record where card_id =
+		#{cardId,jdbcType=INTEGER} and flag = 1
+	</select>
+
+	<!-- 是否有车停在指定停车场 -->
+	<select id="isHasCarInTheParking" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select * from parking_record where parking_id =
+		#{id,jdbcType=INTEGER} and flag = 1
+	</select>
+
+
+
+	<!-- 查詢停車場使用情況 -->
+	<select id="selectUsageOfParkingCard" parameterType="com.parkinglot.admin.entity.UsageOfParkingCard"
+		resultType="com.parkinglot.admin.entity.UsageOfParkingCard">
+		select count(card_id) as count,c.card_id as cardId,c.phone from (select * from parking_record where
+		parking_id=#{id,jdbcType=INTEGER}
+		<if test="null!=firstDate">
+			and checkin_time between #{firstDate,jdbcType=TIMESTAMP}
+			and
+			#{lastDate,jdbcType=TIMESTAMP}
+		</if>
+		) c
+		group by card_id,c.phone
+		order by c.phone,count(card_id) desc;
+	</select>
+
+</mapper>

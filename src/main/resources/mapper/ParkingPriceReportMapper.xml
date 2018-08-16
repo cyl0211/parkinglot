@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.parkinglot.admin.dao.IParkingPriceReportDao">
+	<resultMap id="BaseResultMap"
+		type="com.parkinglot.admin.entity.ParkingPriceReportEntity">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="parking_id" property="parkingId" jdbcType="INTEGER" />
+		<result column="price" property="price" jdbcType="DOUBLE" />
+		<result column="datetime" property="datetime" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<!-- 添加用户信息 -->
+	<insert id="insertParkingPriceReport"
+		parameterType="com.parkinglot.admin.entity.ParkingPriceReportEntity">
+		INSERT INTO
+		parkingPrice_report(parking_id,price,datetime)
+		VALUES(
+		#{parkingId,jdbcType=INTEGER},
+		#{price,jdbcType=DOUBLE},
+		#{datetime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+
+</mapper>

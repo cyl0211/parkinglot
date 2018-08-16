@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.parkinglot.admin.dao.IParkingCardDao">
+
+	<resultMap id="BaseResultMap" type="com.parkinglot.admin.entity.ParkingCardEntity">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="users_id" property="userId" jdbcType="INTEGER" />
+		<result column="parking_id" property="parkingId" jdbcType="VARCHAR" />
+		<result column="card_num" property="cardNum" jdbcType="VARCHAR" />
+		<result column="createdTime" property="createdTime" jdbcType="TIMESTAMP" />
+		<result column="state" property="state" jdbcType="INTEGER" />
+	</resultMap>
+
+
+	<!-- 办理停车卡 -->
+	<insert id="insertParkingCard" parameterType="com.parkinglot.admin.entity.ParkingCardEntity"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO
+		parking_card(users_id,parking_id,card_num,createdTime,state)
+		VALUES(
+		#{userId,jdbcType=INTEGER},
+		#{parkingId,jdbcType=INTEGER},
+		#{cardNum,jdbcType=VARCHAR},
+		now(),
+		#{state,jdbcType=INTEGER}
+		)
+	</insert>
+
+	<!-- 查询卡信息 -->
+	<select id="selectCardByCardNum" resultMap="BaseResultMap">
+		SELECT
+		id,users_id,parking_id,card_num,createdTime,state
+		FROM
+		parking_card
+		WHERE
+		card_num=#{cardNum,jdbcType=VARCHAR}
+		AND
+		state=#{state,jdbcType=INTEGER}
+	</select>
+
+	<!-- 查看停车场可用的卡总数 -->
+	<select id="selectCards" parameterType="java.lang.Integer"
+		resultType="java.lang.Integer">
+		SELECT
+		count(*)
+		FROM parking_card
+		where
+		parking_id=#{parkingId,jdbcType=VARCHAR}
+		and
+		state=0
+	</select>
+
+	<update id="updateParkingCard" parameterType="com.parkinglot.admin.entity.ParkingCardEntity">
+		update parking_card
+		set state=#{state,jdbcType=INTEGER} where
+		card_num=#{cardNum,jdbcType=VARCHAR}
+
+	</update>
+
+	<!--查找某用户在某停车场中卡的总数 -->
+	<select id="selectUserCards" resultMap="BaseResultMap">
+		SELECT
+		id,users_id,parking_id,card_num,createdTime,state
+		FROM parking_card
+		where
+		users_id=#{userId,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectAllCards" resultMap="BaseResultMap">
+		select * from
+		parking_card;
+	</select>
+
+
+	<!-- 查询卡信息 -->
+	<select id="selectCardByCardId" resultMap="BaseResultMap">
+		SELECT
+		id,users_id,parking_id,card_num,createdTime,state
+		FROM
+		parking_card
+		WHERE
+		id=#{cardId,jdbcType=INTEGER}
+	</select>
+
+	<!-- 查询用户办理的停车卡的总数 -->
+	<select id="countCardsForUser" resultType="int">
+		SELECT count(1) FROM
+		parking_card
+		WHERE users_id=#{userId,jdbcType=INTEGER}
+	</select>
+
+	<!-- 查询Active状态的卡 -->
+	<select id="selectActiveCard" resultMap="BaseResultMap">
+		select * from
+		parking_card where parking_id = #{id,jdbcType=INTEGER} and state = 0
+		limit 1
+	</select>
+
+	<!-- 更新停车卡状态 -->
+	<update id="updateCardState" parameterType="com.parkinglot.admin.entity.ParkingCardEntity">
+		UPDATE parking_card
+		SET
+		state=#{state,jdbcType=INTEGER}
+		WHERE id=#{id,jdbcType=INTEGER}
+	</update>
+
+    <!-- 查找能用的所有卡 -->
+	<select id="selectAllUsedCards" resultMap="BaseResultMap">
+		select
+		id,users_id,parking_id,card_num,createdTime,state from parking_card
+		where state=#{state,jdbcType=INTEGER};
+	</select>
+	
+		<!-- 查询卡的状态 -->
+	<select id = "selectCardStateById" resultType = "int">
+		select state from parking_card where id = #{id, jdbcType=INTEGER}
+	</select>
+	
+	<!-- 查询某卡号是否已经存在 -->
+	<select id = "selectCardByCardNumber" resultMap = "BaseResultMap">
+		select * from parking_card where card_num = #{cardNum, jdbcType = VARCHAR}
+	</select>
+	
+		<!-- 更换停车卡号 -->
+	<update id="updateCardNumById" parameterType="com.parkinglot.admin.entity.ParkingCardEntity">
+		update parking_card
+		set
+		card_num = #{cardNum, jdbcType=VARCHAR}
+		where 
+		id = #{id, jdbcType=INTEGER}
+	</update>
+
+</mapper>
